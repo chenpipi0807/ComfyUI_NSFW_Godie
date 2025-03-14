@@ -1,0 +1,2 @@
+# No specific external requirements needed for this node
+# Base ComfyUI environment is sufficient
