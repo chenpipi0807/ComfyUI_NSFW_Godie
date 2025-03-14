@@ -6,7 +6,7 @@ license = {text = "MIT"}
 dependencies = ["# No specific external requirements needed for this node", "# Base ComfyUI environment is sufficient"]
 
 [project.urls]
-Repository = "https://github.com/Godie/ComfyUI_NSFW_Godie"
+Repository = "https://github.com/chenpipi0807/ComfyUI_NSFW_Godie"
 #  Used by Comfy Registry https://comfyregistry.org
 
 [tool.comfy]
