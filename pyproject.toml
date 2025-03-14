@@ -1,0 +1,15 @@
+[project]
+name = "comfyui_nsfw_godie"
+description = "A simple and effective ComfyUI custom node for filtering inappropriate text content, automatically detecting and replacing prohibited words while preserving the original format."
+version = "1.0.0"
+license = {text = "MIT"}
+dependencies = ["# No specific external requirements needed for this node", "# Base ComfyUI environment is sufficient"]
+
+[project.urls]
+Repository = "https://github.com/Godie/ComfyUI_NSFW_Godie"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "ComfyUI NSFW Filter"
+Icon = ""
