@@ -39,7 +39,7 @@ class NSFWTextFilter:
                 if self._nsfw_words is None:
                     self._nsfw_words = set()
     
-    def filter_text(self, text):
+    def filter_text(self, text, replacement_char='*'):
         """Filter NSFW words in text while preserving original formatting"""
         if not text:
             return text
@@ -59,8 +59,8 @@ class NSFWTextFilter:
             if token.strip() and not re.match(delimiters, token):
                 # Check if the lowercase version of the token is in the NSFW list
                 if token.lower() in self._nsfw_words:
-                    # Replace with asterisks while preserving length
-                    tokens[i] = '*' * len(token)
+                    # Replace with specified character while preserving length
+                    tokens[i] = replacement_char * len(token)
         
         # Rejoin the tokens
         return ''.join(tokens)
@@ -73,6 +73,9 @@ class NSFWFilterNode:
             "required": {
                 "text": ("STRING", {"multiline": True}),
             },
+            "optional": {
+                "replacement_char": ("STRING", {"default": "*", "multiline": False}),
+            },
         }
 
     RETURN_TYPES = ("STRING",)
@@ -81,9 +84,16 @@ class NSFWFilterNode:
     OUTPUT_NODE = True
     DISPLAY_NAME = "ComfyUI_NSFW_Godie"
 
-    def filter_nsfw(self, text):
+    def filter_nsfw(self, text, replacement_char="*"):
+        # Make sure replacement_char is not empty, default to '*' if it is
+        if not replacement_char:
+            replacement_char = "*"
+        # If the replacement_char is longer than 1 character, just use the first character
+        if len(replacement_char) > 1:
+            replacement_char = replacement_char[0]
+            
         filter_instance = NSFWTextFilter.get_instance()
-        filtered_text = filter_instance.filter_text(text)
+        filtered_text = filter_instance.filter_text(text, replacement_char)
         return (filtered_text,)
 
 
