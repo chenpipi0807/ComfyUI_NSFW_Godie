@@ -50,6 +50,9 @@ git clone https://github.com/chenpipi0807/ComfyUI_NSFW_Godie.git
 
 你可以通过编辑节点目录中的 `nsfw.txt` 文件来添加或删除违禁词。很简单，添加或删除就行了！
 
+## 重点表扬
+重点表扬攻坚队的@企鹅老师贡献违禁词（手动狗头）
+
 ## 许可证
 
 MIT
