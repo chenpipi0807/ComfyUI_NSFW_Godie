@@ -5,6 +5,7 @@ import time
 class NSFWTextFilter:
     _instance = None
     _nsfw_words = None
+    _nsfw_phrases = None
     _last_load_time = 0
     _cache_duration = 3600  # Cache duration in seconds (1 hour)
 
@@ -22,22 +23,36 @@ class NSFWTextFilter:
         current_time = time.time()
         
         # Check if we need to reload the words
-        if (self._nsfw_words is None or 
+        if (self._nsfw_words is None or self._nsfw_phrases is None or
             current_time - self._last_load_time > self._cache_duration):
             
             nsfw_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "nsfw.txt")
             
             try:
+                self._nsfw_words = set()
+                self._nsfw_phrases = set()
+                
                 with open(nsfw_file_path, 'r', encoding='utf-8') as f:
-                    # Strip whitespace and filter out empty lines
-                    self._nsfw_words = set(word.strip().lower() for word in f.readlines() if word.strip())
+                    for line in f:
+                        term = line.strip().lower()
+                        if not term:
+                            continue
+                            
+                        # Add to appropriate set depending on if it contains spaces
+                        if ' ' in term:
+                            self._nsfw_phrases.add(term)
+                        else:
+                            self._nsfw_words.add(term)
+                
                 self._last_load_time = current_time
-                print(f"[NSFW Filter] Loaded {len(self._nsfw_words)} words")
+                print(f"[NSFW Filter] Loaded {len(self._nsfw_words)} single words and {len(self._nsfw_phrases)} phrases")
             except Exception as e:
                 print(f"[NSFW Filter] Error loading NSFW words: {e}")
-                # If loading fails, make sure we have at least an empty set
+                # If loading fails, make sure we have at least empty sets
                 if self._nsfw_words is None:
                     self._nsfw_words = set()
+                if self._nsfw_phrases is None:
+                    self._nsfw_phrases = set()
     
     def filter_text(self, text, replacement_char='*'):
         """Filter NSFW words in text while preserving original formatting"""
@@ -47,12 +62,25 @@ class NSFWTextFilter:
         # Reload words if needed
         self.load_nsfw_words()
         
-        # Create a case-preserving mapping of words to filtered versions
+        # Make a copy of the original text that we'll modify
         result = text
         
+        # First, handle phrases (with spaces)
+        if self._nsfw_phrases:
+            for phrase in self._nsfw_phrases:
+                # Case-insensitive search using regex
+                pattern = re.compile(re.escape(phrase), re.IGNORECASE)
+                
+                def replace_phrase(match):
+                    matched_text = match.group(0)
+                    return replacement_char * len(matched_text)
+                
+                result = pattern.sub(replace_phrase, result)
+        
+        # Now handle single words using the token approach
         # Strategy: split by common delimiters while preserving them
         delimiters = r'([,.!?\s\-_:;\(\)\[\]\{\}"\'/\\|<>@#$%^&*+=~`])'
-        tokens = re.split(delimiters, text)
+        tokens = re.split(delimiters, result)
         
         # Process each token
         for i, token in enumerate(tokens):
